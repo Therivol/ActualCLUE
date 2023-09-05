@@ -2,49 +2,37 @@ import time
 import statistics
 import threading
 from gamesim import GameSim
+from evaluation import Eval
+
 
 
 class MultiSim:
-    def __init__(self, num_games: int, player_num: int) -> None:
-        self.player_number = player_num
+    def __init__(self, num_games: int, player_num: int, evaluator: Eval) -> None:
+        self.num_games = num_games
+        self.player_num = player_num
+        self.evaluator = evaluator
+        
         self.start_time = time.time()
+        
         self.times = []
         self.turns = []
-        self.threads = []
-        x = threading.Thread(target=self.run, args=[int(num_games)])
-        # y = threading.Thread(target=self.run, args=[int(num_games)])
         
-        self.threads.append(x)
-        # self.threads.append(y)
-        for thread in self.threads:
-            thread.start()
-            
+        self.run()
         
-    def run(self, num_games: int):
-        times = []
-        turns = []
-        for _ in range(num_games):
+    def run(self) -> None:
+        for _ in range(self.num_games):
             start = time.time()
-            game_sim = GameSim(self.player_number)
-            times.append(time.time() - start)
-            turns.append(game_sim.turns)
-        
-        self.times += times
-        self.turns += turns
-        self.thread_done()
-        
-    def thread_done(self) -> None:
-        for thread in self.threads:
-            if threading.current_thread() != thread:
-                if thread.is_alive():
-                    return
-        
-        self.finish()
-        
-    def finish(self) -> None:
-        print("AVG RUNTIME:", statistics.mean(self.times))
-        print("AVG GUESSES:", statistics.mean(self.turns))
-        print("STANDARD DEVIATION:", statistics.stdev(self.turns))
-        print("MAX GUESSES:", max(self.turns))
-        print("MIN GUESSES:", min(self.turns))
-        print("ELAPSED:", time.time() - self.start_time)
+            game_sim = GameSim(self.player_num, self.evaluator)
+            self.times.append(time.time() - start)
+            self.turns.append(game_sim.turns)
+    
+    def get_report(self) -> str:
+        report = ""
+        report += f"AVG RUNTIME: {statistics.mean(self.times)}\n"
+        report += f"AVG GUESSES: {statistics.mean(self.turns)}\n"
+        report += f"STANDARD DEVIATION: {statistics.stdev(self.turns)}\n"
+        report += f"MAX GUESSES: {max(self.turns)}\n"
+        report += f"MIN GUESSES: {min(self.turns)}\n"
+        report += f"ELAPSED: {time.time() - self.start_time}\n"
+        return report
+

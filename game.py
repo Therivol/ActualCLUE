@@ -5,14 +5,15 @@ from cards import Cards
 from card import Card
 
 
+
 class Game:
-    def __init__(self, players: list[Player], your_hand: set[Card]) -> None:
+    def __init__(self, players: list[Player], your_hand: set[Card], evaluator) -> None:
         self.players = players
         self.player_num = len(players)
         self.your_hand = your_hand
-        
+        self.evaluator = evaluator
         self.guesses = []
-        self.current_position = Position(self.players, self.guesses)
+        self.current_position = Position(self.players, self.guesses, self.evaluator)
         
         self.start()
         

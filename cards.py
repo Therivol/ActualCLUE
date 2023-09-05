@@ -1,6 +1,7 @@
 from card import Card
 import random
 from itertools import product
+from trio import Trio
 
 
 class Cards:
@@ -11,6 +12,7 @@ class Cards:
     weapon = 2
     
     # Cards
+    none = Card("NONE", 0)
     study = Card("STUDY", 0)
     hall = Card("HALL", 0)
     lounge = Card("LOUNGE", 0)
@@ -47,7 +49,11 @@ class Cards:
     _weapons_list = list(_weapons)
     _all_list = list(_all)
     
-    _all_combinations = [frozenset(combo) for combo in product(_rooms_list, _characters_list, _weapons_list)]
+    _all_trios = []
+    for room in _rooms_list:
+        for character in _characters_list:
+            for weapon in _weapons:
+                _all_trios.append(Trio(room, character, weapon))
     
     # Methods
     @staticmethod
@@ -71,5 +77,5 @@ class Cards:
         return {0: random.choice(Cards._rooms_list), 1: random.choice(Cards._characters_list), 2: random.choice(Cards._weapons_list)}
     
     @staticmethod
-    def all_combinations() -> list:
-        return Cards._all_combinations
+    def all_trios() -> list:
+        return Cards._all_trios

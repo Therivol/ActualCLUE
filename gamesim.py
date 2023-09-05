@@ -7,7 +7,8 @@ import random
 
 
 class GameSim:
-    def __init__(self, num_players) -> None:
+    def __init__(self, num_players, evaluator) -> None:
+        self.evaluator = evaluator
         self.next_guess = NextGuess()
         self.case_file = Cards.case_file()
         self.your_player = 0
@@ -15,7 +16,7 @@ class GameSim:
         self.num_players = num_players
         self.distribute()
         self.players = self.get_players()
-        self.game = Game(self.players, self.player_hands[0])
+        self.game = Game(self.players, self.player_hands[0], evaluator)
         self.turns = 0
         self.run()
         
@@ -57,7 +58,7 @@ class GameSim:
                     break
             else:
                 reveal_id = -1
-                revealed = None
+                revealed = Cards.none
                 
             self.game.add_guess(Guess(0, reveal_id, next_guess, revealed))
             

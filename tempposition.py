@@ -15,9 +15,11 @@ class TempPosition:
         self.confirmed = position.confirmed.copy()
     
     def run(self, position: Position, guess: Guess) -> int:
+        
         position.add_guess(guess)        
         eval = position.evaluate()
         self.reset(position)
+                
         return eval
     
     def reset(self, position: Position):

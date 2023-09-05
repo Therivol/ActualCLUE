@@ -6,9 +6,10 @@ from evaluation import Eval
 
 
 class Position:
-    def __init__(self, players: list[Player], guesses: list[Guess]) -> None:
+    def __init__(self, players: list[Player], guesses: list[Guess], evaluator: Eval) -> None:
         self.players = players
         self.num_players = len(players)
+        self.evaluator = evaluator
         self.guesses = guesses
         self.cur_queue = []
         self.next_queue = []
@@ -36,7 +37,7 @@ class Position:
                 for card in guess.cards:
                     self.add_command(self.players[player_index].remove_card, [card])
                     
-            if guess.revealed:
+            if guess.revealed != Cards.none:
                 self.add_command(self.players[guess.reveal_id].reveal_card, [guess.revealed])
             else:
                 self.add_command(self.players[guess.reveal_id].add_show_set, [guess.cards])                
@@ -64,6 +65,7 @@ class Position:
             
     def print_info(self) -> None:
         print("---------------------------------------")
+        print(f"Evaluation: {self.evaluate()}")
         print(f"Possible Cards({len(self.possible_cards)}): {self.possible_cards}")
         print(f"Confirmed Cards({len(self.confirmed)}): {self.confirmed}")
         print("Player Info:")
@@ -83,15 +85,11 @@ class Position:
         evaluation = 0
         
         if len(self.confirmed) == 3:
-            return Eval.all_confirmed
+            return self.evaluator.all_confirmed
+        # evaluation += len(self.confirmed) * self.evaluator.confirmed
         
-        evaluation += Eval.low_weight * sum(self.possible_cards.values())
-
-        # for player in self.players:
-            # for show_set in player.show_sets:
-                # evaluation += Eval.show_set_weights[len(show_set)]
-                
-        evaluation += sum(Eval.show_set_weights[len(show_set)] for player in self.players for show_set in player.show_sets)
+        evaluation += self.evaluator.low_weight * sum(self.possible_cards.values())
+        evaluation += sum(self.evaluator.show_set_weights[len(show_set)] for player in self.players for show_set in player.show_sets)
         
         return evaluation
     

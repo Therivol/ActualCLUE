@@ -2,9 +2,16 @@
 
 class Eval:
     
-    all_confirmed = 3000
-    low_weight = 30
-    show_set_weights = {3: 10, 2: 15}
+    def __init__(self, all_confirmed: int, low_weight: int, show_set_weights: dict) -> None:
+        self.all_confirmed = all_confirmed
+        self.low_weight = low_weight
+        self.show_set_weights = show_set_weights
+        
+        
+    def __hash__(self) -> int:
+        return hash(self.all_confirmed, self.low_weight, self.show_set_weights)
     
     
-    
+3000
+30
+{3: 10, 2: 15}
