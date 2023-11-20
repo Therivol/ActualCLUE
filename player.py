@@ -25,6 +25,8 @@ class Player:
             for possible_card in self.possible_cards:
                 self.position.increase_possible(possible_card)
             self.possible_cards.clear()
+            
+        self.show_sets = [show_set for show_set in self.show_sets if card not in show_set]
         
         self.position.add_command(self.position.remove_from_all, [card])
         
