@@ -27,6 +27,33 @@ class NextGuess:
         # print(time.time() - start_time)
         return sorted_guesses
     
+    def get_next_predictive(self, position: Position):
+        pred = position.predictions
+        predictions = {}
+        for card, weights in pred.items():
+            summation = sum(weights)
+            length = len(weights)
+            predictions[card] = [val * length/ summation for val in weights]
+        # start_time = time.time()
+        base_eval = position.evaluate()
+        position.print_info()
+        next_guesses = {}
+        
+        self.tp.set_anchor(position)
+        
+        for trio in Cards.all_trios():
+            outcomes = self.get_predictive_outcomes(position, trio, predictions)
+            if trio == Trio(Cards.study, Cards.prof_plum, Cards.candlestick):
+                position.print_info()
+                print(outcomes, base_eval)
+                print(position.evaluate())
+            next_guesses[trio] = (sum(outcomes) / len(outcomes)) - base_eval
+            
+        sorted_guesses = dict(sorted(next_guesses.items(), key=lambda item: item[1], reverse=True))
+        
+        # print(time.time() - start_time)
+        return sorted_guesses
+    
     def sort_trios(self, position: Position) -> dict:
         non_zeroes = []
         unique = {}
@@ -79,6 +106,27 @@ class NextGuess:
         
         # return non_zeroes
         return unique
+    
+
+    def get_predictive_outcomes(self, position: Position, trio: Trio, predictions: dict):
+        outcomes = []
+        for player_idx, player in enumerate(position.players[1:]):
+            player_outcomes = []
+            for card in trio:
+                if card in player.known_cards:
+                    outcomes.append(self.tp.run(position, Guess(0, player_idx + 1, trio, card)))
+                    return outcomes
+                
+                if card in player.possible_cards:
+                    player_outcomes.append(self.tp.run(position, Guess(0, player_idx + 1, trio, card)) * predictions[card][player_idx + 1])
+            
+            outcomes += player_outcomes
+        
+        outcomes.append(self.tp.run(position, Guess(0, -1, trio, Cards.none)))
+        
+        return outcomes
+    
+
             
     
     def get_outcomes(self, position: Position, trio: Trio):

@@ -7,9 +7,6 @@ from multisim import MultiSim
 from trio import Trio
 from genetic import Genetic
 from evaluation import Eval
-import cProfile
-
-import pstats
 
 
 # cProfile.run("MultiSim(10, 3)")
@@ -64,21 +61,25 @@ game.add_guess(Guess(4, 3, Trio(Cards.library, Cards.mrs_white, Cards.wrench), C
 game.add_guess(Guess(0, 3, Trio(Cards.lounge, Cards.prof_plum, Cards.revolver), Cards.prof_plum))
 
 game.add_guess(Guess(0, 1, Trio(Cards.hall, Cards.mr_green, Cards.lead_pipe), Cards.hall)) # unsure
-game.add_guess(Guess(0, 2, Trio(Cards.ball_room, Cards.miss_scarlet, Cards.lead_pipe), Cards.miss_scarlet)) # unsure but both sure together
+# game.add_guess(Guess(0, 2, Trio(Cards.ball_room, Cards.miss_scarlet, Cards.lead_pipe), Cards.miss_scarlet)) # unsure but both sure together
 
 # game.add_guess(Guess(1, 4, Trio(Cards.lounge, Cards.mrs_white, Cards.rope), Cards.none))
 # game.add_guess(Guess(3, 1, Trio(Cards.hall, Cards.miss_scarlet, Cards.wrench), Cards.none))
 # game.add_guess(Guess(4, 0, Trio(Cards.lounge, Cards.mr_green, Cards.rope), Cards.none))
 
 # game.current_position.add_command(game.current_position.players[4].reveal_card, [Cards.revolver])
-game.current_position.update()
-
-print(game.current_position.known_cards)
+# game.current_position.update()
 
 
-game.current_position.print_info()
+# game.current_position.print_info()
 
 ng = NextGuess()
+guesses = ng.get_next_predictive(game.current_position)
+for guess in guesses:
+    if guesses[guess] != 0:
+        print(guess, guesses[guess])
+
+print()
 guesses = ng.get_next_guesses(game.current_position)
 for guess in guesses:
     if guesses[guess] != 0:

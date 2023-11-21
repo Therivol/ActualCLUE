@@ -13,15 +13,21 @@ class Position:
         self.guesses = guesses
         self.cur_queue = []
         self.next_queue = []
-        self.possible_cards = {card: 0 for card in Cards.all()}
+        self.possible_cards = {card: set() for card in Cards.all()}
         self.confirmed = {}
         self.known_cards = [Cards.rooms(), Cards.characters(), Cards.weapons()]
+        self.predictions = {card: [1] * self.num_players for card in Cards.all()}
                 
     def run(self) -> None:
         for guess in self.guesses:
             self.add_guess(guess)
     
     def add_guess(self, guess: Guess) -> None:
+
+        if guess.guess_id != 0:
+            for card in guess.cards:
+                self.predictions[card][guess.guess_id] += 1
+
         if guess.reveal_id == -1:
             for player in self.players:
                 for card in guess.cards:
@@ -67,7 +73,7 @@ class Position:
     def print_info(self) -> None:
         print("---------------------------------------")
         print(f"Evaluation: {self.evaluate()}")
-        print(f"Possible Cards({len(self.possible_cards)}): {self.possible_cards}")
+        print(f"Possible Cards({len(self.possible_cards)}): {self.get_numbered_possible()}")
         print(f"Confirmed Cards({len(self.confirmed)}): {self.confirmed}")
         print("Player Info:")
         for player_idx, player in enumerate(self.players):
@@ -77,10 +83,13 @@ class Position:
             print(f"\t\tShow Sets({len(player.show_sets)}): {player.show_sets}")
         print("---------------------------------------")
 
-    def increase_possible(self, card: Card) -> None:
-        self.possible_cards[card] += 1
-        if self.possible_cards[card] == self.num_players:
+    def increase_possible(self, card: Card, player_name: str) -> None:
+        self.possible_cards[card].add(player_name)
+        if len(self.possible_cards[card]) == self.num_players:
             self.confirmed[card.type] = card
+
+    def get_numbered_possible(self) -> dict:
+        return {card: len(names) for card, names in self.possible_cards.items()}
 
     def add_known(self, card: Card) -> None:
         self.known_cards[card.type].discard(card)
@@ -94,7 +103,7 @@ class Position:
             return self.evaluator.all_confirmed
         # evaluation += len(self.confirmed) * self.evaluator.confirmed
         
-        evaluation += self.evaluator.low_weight * sum(self.possible_cards.values())
+        evaluation += self.evaluator.low_weight * sum(self.get_numbered_possible().values())
         evaluation += sum(self.evaluator.show_set_weights[len(show_set)] for player in self.players for show_set in player.show_sets)
         
         return evaluation

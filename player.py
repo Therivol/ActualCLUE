@@ -23,7 +23,7 @@ class Player:
         self.known_cards.add(card)
         if len(self.known_cards) == self.hand_size:
             for possible_card in self.possible_cards:
-                self.position.increase_possible(possible_card)
+                self.position.increase_possible(possible_card, self.name)
             self.possible_cards.clear()
             
         self.show_sets = [show_set for show_set in self.show_sets if card not in show_set]
@@ -49,7 +49,7 @@ class Player:
     def remove_card(self, card: Card) -> None:
         if card in self.possible_cards:
             self.possible_cards.remove(card)
-            self.position.increase_possible(card)
+            self.position.increase_possible(card, self.name)
             if len(self.possible_cards) + len(self.known_cards) == self.hand_size:
                 for card in self.possible_cards:
                     self.position.add_command(self.reveal_card, [card])
