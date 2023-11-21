@@ -15,6 +15,7 @@ class Position:
         self.next_queue = []
         self.possible_cards = {card: 0 for card in Cards.all()}
         self.confirmed = {}
+        self.known_cards = [Cards.rooms(), Cards.characters(), Cards.weapons()]
                 
     def run(self) -> None:
         for guess in self.guesses:
@@ -80,6 +81,11 @@ class Position:
         self.possible_cards[card] += 1
         if self.possible_cards[card] == self.num_players:
             self.confirmed[card.type] = card
+
+    def add_known(self, card: Card) -> None:
+        self.known_cards[card.type].discard(card)
+        if len(self.known_cards[card.type]) == 1:
+            self.add_command(self.remove_from_all, [list(self.known_cards[card.type])[0]])
     
     def evaluate(self) -> int:
         evaluation = 0
