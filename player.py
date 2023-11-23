@@ -5,6 +5,7 @@ from cards import Cards
 class Player:
     def __init__(self, name: str, hand_size: int) -> None:
         self.name = name
+        self.id = 0
         self.hand_size = hand_size
         self.position = None
         self.known_cards = set()

@@ -15,13 +15,12 @@ class NextGuess:
         # start_time = time.time()
         base_eval = position.evaluate()
         next_guesses = {}
-        
         self.tp.set_anchor(position)
         
         for trio in Cards.all_trios():
             outcomes = self.get_outcomes(position, trio)
             next_guesses[trio] = (sum(outcomes) / len(outcomes)) - base_eval
-            
+
         sorted_guesses = dict(sorted(next_guesses.items(), key=lambda item: item[1], reverse=True))
         
         # print(time.time() - start_time)
@@ -36,17 +35,12 @@ class NextGuess:
             predictions[card] = [val * length/ summation for val in weights]
         # start_time = time.time()
         base_eval = position.evaluate()
-        position.print_info()
         next_guesses = {}
         
         self.tp.set_anchor(position)
         
         for trio in Cards.all_trios():
             outcomes = self.get_predictive_outcomes(position, trio, predictions)
-            if trio == Trio(Cards.study, Cards.prof_plum, Cards.candlestick):
-                position.print_info()
-                print(outcomes, base_eval)
-                print(position.evaluate())
             next_guesses[trio] = (sum(outcomes) / len(outcomes)) - base_eval
             
         sorted_guesses = dict(sorted(next_guesses.items(), key=lambda item: item[1], reverse=True))
